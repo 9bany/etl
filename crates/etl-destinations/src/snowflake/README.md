@@ -17,6 +17,10 @@ cargo x test-snowflake
 
 This requires local Postgres to already be running. Run `cargo x init` first if the local development stack is not up. The command first runs the non-credentialed Snowflake destination preset, then runs the credentialed integration tiers when `TESTS_SNOWFLAKE_CONNECTION` is set. Use `--credentials skip` to run only the non-credentialed tier, or `--credentials required` to fail when credentials are missing.
 
+GitHub Actions runs the credential-free tier for relevant pull request and `main` changes, retaining the `Snowflake Gate` check. Routine CI does not receive Snowflake credentials. The separate `Snowflake Daily Tests` workflow runs the credentialed API validator and destination integration tiers once daily at 04:17 UTC on the default branch, using the `TESTS_SNOWFLAKE_CONNECTION` repository secret. Scheduled runs begin after the workflow is merged and can be delayed by GitHub.
+
+Failures appear in the repository's Actions tab under `Snowflake Daily Tests`.
+
 To run a specific destination test directly:
 
 ```bash
@@ -60,7 +64,7 @@ on the command line.
 
 GitHub Actions uses the same one-var contract:
 
-- `TESTS_SNOWFLAKE_CONNECTION` for `.github/workflows/snowflake-ci.yml`.
+- `TESTS_SNOWFLAKE_CONNECTION` for `.github/workflows/snowflake-daily.yml`.
 - `BENCH_SNOWFLAKE_CONNECTION` for manual Snowflake benchmark workflow runs.
 
 Both repository secrets use the same JSON shape shown above. The workflows pass the JSON only
